@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ayar | برش هوشمند اسکرین‌شات چت</title>
+<meta name="description" content="با Ayar ناحیه چت را از اسکرین‌شات تشخیص بده و تصویر را در چند حالت آماده و برش‌خورده دریافت کن">
+<meta property="og:title" content="Ayar | برش هوشمند اسکرین‌شات چت">
+<meta property="og:description" content="با Ayar ناحیه چت را از اسکرین‌شات تشخیص بده و تصویر را در چند حالت آماده و برش‌خورده دریافت کن">
+<meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f0f11" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="ns-ayar.webmanifest">
+<link rel="icon" href="icons/ns-ayar-favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/ns-ayar-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/ns-ayar-192.png">
+<link rel="apple-touch-icon" href="icons/ns-ayar-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="آیار">
+<link rel="preload" href="brand/ns-ayar-logo.png" as="image">
+<link rel="preload" href="fonts/Pinar-FD-VF.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/ns-ayar.css">
+<style>html, body { margin: 0; padding: 0; height: 100%; }</style>
+</head>
+<body>
+<div class="ns-ayar ns-ayar-app" id="ns-ayar-app" dir="rtl" lang="fa" data-ns-ayar-worker="js/ns-ayar-worker.js" data-ns-ayar-sw="ns-ayar-sw.js" data-ns-ayar-stats="api/ns-ayar-collect.php">
+  <script>
+    // Apply the saved/system theme before first paint to avoid a flash.
+    (function (el) {
+      var t = null;
+      try { t = localStorage.getItem('ns-ayar-theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      el.setAttribute('data-ns-ayar-theme', t);
+    })(document.getElementById('ns-ayar-app'));
+  </script>
+  <div class="ns-ayar-view" id="ns-ayar-view"></div>
+  <input id="ns-ayar-file" type="file" multiple accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" aria-label="انتخاب فایل تصویر" class="ns-ayar-sr-file">
+  <div id="ns-ayar-toast" class="ns-ayar-toast" role="status" aria-live="polite" hidden></div>
+  <div id="ns-ayar-update" class="ns-ayar-update" role="alert" hidden>
+    <span>نسخه‌ی جدید آیار آماده است</span>
+    <button type="button" class="ns-ayar-later" data-ns-ayar-update="later">بعداً</button>
+    <button type="button" data-ns-ayar-update="now">به‌روزرسانی</button>
+  </div>
+</div>
+<noscript><p style="padding:24px;text-align:center">برای استفاده از آیار، جاوااسکریپت مرورگر را فعال کن</p></noscript>
+<script src="js/ns-ayar-detect.js"></script>
+<script src="js/ns-ayar-app.js"></script>
+</body>
+</html>

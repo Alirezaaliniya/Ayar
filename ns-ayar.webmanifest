@@ -1,0 +1,24 @@
+{
+  "id": "./",
+  "name": "آیار — برش هوشمند اسکرین‌شات چت",
+  "short_name": "آیار",
+  "description": "پیام‌ها را از اسکرین‌شات چت تشخیص بده و برای هر پیام یک تصویر آماده بگیر",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f6f3",
+  "theme_color": "#18181b",
+  "icons": [
+    { "src": "icons/ns-ayar-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/ns-ayar-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/ns-ayar-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "share_target": {
+    "action": "./?ns-ayar-share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": { "files": [{ "name": "images", "accept": ["image/png", "image/jpeg", "image/webp", ".png", ".jpg", ".jpeg", ".webp"] }] }
+  }
+}

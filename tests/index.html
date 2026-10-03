@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ayar | تست تشخیص</title>
+<style>
+  .ns-ayar-test { font-family: system-ui, sans-serif; margin: 0; padding: 24px; line-height: 1.9; background: #f6f6f3; color: #18181b; }
+  .ns-ayar-test h1 { font-size: 20px; margin: 0 0 4px; }
+  .ns-ayar-test-sum { margin: 0 0 16px; font-weight: 700; }
+  .ns-ayar-test table { border-collapse: collapse; width: 100%; background: #fff; font-size: 13px; }
+  .ns-ayar-test th, .ns-ayar-test td { border: 1px solid #e3e3df; padding: 8px 10px; text-align: right; vertical-align: top; }
+  .ns-ayar-test-pass { color: #17795e; font-weight: 700; }
+  .ns-ayar-test-fail { color: #b3261e; font-weight: 700; }
+  .ns-ayar-test code { direction: ltr; unicode-bidi: isolate; }
+</style>
+</head>
+<body class="ns-ayar-test">
+<h1>تست خودکار تشخیص پیام‌ها</h1>
+<p class="ns-ayar-test-sum" id="ns-ayar-test-sum">در حال اجرا</p>
+<table>
+  <thead><tr><th>فایل</th><th>نتیجه</th><th>انتظار</th><th>خروجی تشخیص</th><th>زمان</th></tr></thead>
+  <tbody id="ns-ayar-test-rows"></tbody>
+</table>
+<script src="../js/ns-ayar-detect.js"></script>
+<script src="ns-ayar-fixtures.js"></script>
+<script src="ns-ayar-tests.js"></script>
+</body>
+</html>

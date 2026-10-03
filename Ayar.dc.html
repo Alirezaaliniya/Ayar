@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Ayar | برش هوشمند اسکرین‌شات چت</title>
+<meta name="description" content="با Ayar ناحیه چت را از اسکرین‌شات تشخیص بده و تصویر را در چند حالت آماده و برش‌خورده دریافت کن.">
+<meta property="og:title" content="Ayar | برش هوشمند اسکرین‌شات چت">
+<meta property="og:description" content="با Ayar ناحیه چت را از اسکرین‌شات تشخیص بده و تصویر را در چند حالت آماده و برش‌خورده دریافت کن.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400..700&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0}
+body{font-family:"Vazirmatn",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid oklch(0.6 0.12 170);outline-offset:2px}
+@keyframes ayarScan{from{top:3%}to{top:97%}}
+@keyframes ayarSpin{to{transform:rotate(360deg)}}
+@keyframes ayarPulse{0%,100%{opacity:.35}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</helmet>
+<div dir="rtl" style="--bg:#f6f6f3;--surface:#ffffff;--s2:#efefeb;--ink:#18181b;--ink2:#55555c;--ink3:#85858c;--line:rgba(24,24,27,.09);--accent:oklch(0.56 0.12 170);--accentSoft:oklch(0.95 0.03 170);--accentInk:#ffffff;--warn:oklch(0.55 0.12 70);--warnSoft:oklch(0.96 0.04 85);--danger:oklch(0.55 0.17 25);--dangerSoft:oklch(0.96 0.025 25);--backdrop:#e7e7e2;font-family:Vazirmatn,system-ui,sans-serif">
+<div style="{{ darkVars }}">
+<div style="min-height:100vh;background:var(--backdrop);display:flex;align-items:center;justify-content:center;padding:{{ outerPad }};box-sizing:border-box">
+<div style="position:relative;width:{{ appW }};height:{{ appH }};border-radius:{{ appR }};overflow:hidden;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;box-shadow:{{ appShadow }}">
+
+<sc-if value="{{ showHeader }}" hint-placeholder-val="{{ true }}">
+<header style="flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg)">
+<div style="display:flex;align-items:center;gap:10px">
+<button onClick="{{ goHome }}" aria-label="آیار، صفحه اصلی" style="display:flex;align-items:center;gap:9px;background:none;border:0;padding:4px 0;color:var(--ink)">
+<span style="width:26px;height:26px;border-radius:8px;background:var(--ink);display:grid;place-items:center"><span style="width:10px;height:10px;border:2px solid var(--bg);border-radius:3px"></span></span>
+<span style="font-size:18px;font-weight:700;letter-spacing:-.01em">آیار</span>
+</button>
+<a href="https://nias.ir/" target="_blank" rel="noopener" dir="ltr" style="flex:none;white-space:nowrap;font-size:11px;color:var(--ink3);padding:2px 7px;border:1px solid var(--line);border-radius:999px">by Nias</a>
+</div>
+<div style="display:flex;align-items:center;gap:6px">
+<sc-if value="{{ showNew }}" hint-placeholder-val="{{ false }}">
+<button onClick="{{ goHome }}" style="flex:none;white-space:nowrap;height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:13px;font-weight:500">تصویر جدید</button>
+</sc-if>
+<button onClick="{{ toggleTheme }}" aria-label="تغییر حالت روشن و تیره" style="width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink2);display:grid;place-items:center">
+<sc-if value="{{ isDark }}" hint-placeholder-val="{{ false }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+</sc-if>
+<sc-if value="{{ isLight }}" hint-placeholder-val="{{ true }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg>
+</sc-if>
+</button>
+</div>
+</header>
+</sc-if>
+
+<sc-if value="{{ showStepper }}" hint-placeholder-val="{{ false }}">
+<nav aria-label="مراحل" style="flex:none;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;font-size:12px;border-bottom:1px solid var(--line)">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:6px;color:{{ s.color }};font-weight:{{ s.weight }}">
+<span style="width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:600;background:{{ s.dotBg }};color:{{ s.dotInk }}">{{ s.num }}</span>
+<span>{{ s.label }}</span>
+<sc-if value="{{ s.notLast }}"><span style="width:12px;height:1px;background:var(--ink3);opacity:.5"></span></sc-if>
+</div>
+</sc-for>
+</nav>
+</sc-if>
+
+<!-- LANDING -->
+<sc-if value="{{ isLanding }}" hint-placeholder-val="{{ true }}">
+<main style="flex:1;overflow:auto;display:flex;flex-direction:column">
+<div style="width:100%;max-width:560px;margin:0 auto;padding:36px 20px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:24px;flex:1">
+<div style="display:flex;flex-direction:column;gap:12px">
+<h1 style="margin:0;font-size:30px;line-height:1.35;font-weight:700;letter-spacing:-.015em;text-wrap:balance">اسکرین‌شات چتت رو تمیز و آماده کن</h1>
+<p style="margin:0;font-size:15px;line-height:1.85;color:var(--ink2);text-wrap:pretty">آیار ناحیه چت را از اسکرین‌شات تشخیص می‌دهد و چند نسخه‌ی آماده از تصویر بهت می‌دهد.</p>
+</div>
+
+<div onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" style="position:relative;border:1.5px dashed {{ dzBorder }};background:{{ dzBg }};border-radius:20px;padding:28px 20px 22px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;transition:border-color .15s,background .15s">
+<span style="width:52px;height:52px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;color:var(--accent);box-shadow:0 1px 2px rgba(0,0,0,.04)">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7 9l5-5 5 5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"></path></svg>
+</span>
+<div style="display:flex;flex-direction:column;gap:6px">
+<p style="margin:0;font-size:18px;font-weight:600">اسکرین‌شاتت رو اینجا بنداز</p>
+<p style="margin:0;font-size:13.5px;line-height:1.8;color:var(--ink2);text-wrap:pretty">ناحیه چت را هوشمندانه تشخیص بده و تصویر را آماده کن.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:300px;margin-top:4px">
+<button onClick="{{ pickFile }}" style="height:50px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:15px;font-weight:600">انتخاب تصویر</button>
+<button onClick="{{ pasteClip }}" style="height:46px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:8px">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1"></rect><path d="M16 5h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h2"></path></svg>
+چسباندن از کلیپ‌بورد
+</button>
+</div>
+<p style="margin:2px 0 0;font-size:12px;color:var(--ink3)"><span dir="ltr">PNG · JPG · JPEG · WEBP</span> — حداکثر ۲۰ مگابایت</p>
+<input ref="{{ fileRef }}" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" onChange="{{ onFileChange }}" aria-label="انتخاب فایل تصویر" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none">
+</div>
+
+<sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="display:flex;gap:12px;align-items:flex-start;padding:14px 14px 14px 10px;border-radius:14px;background:var(--dangerSoft);color:var(--ink)">
+<span style="flex:none;color:var(--danger);margin-top:2px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.01"></path></svg></span>
+<div style="flex:1;display:flex;flex-direction:column;gap:3px"><strong style="font-size:14px;font-weight:600">{{ errTitle }}</strong><span style="font-size:13px;line-height:1.75;color:var(--ink2)">{{ errBody }}</span></div>
+<button onClick="{{ clearError }}" aria-label="بستن پیام" style="flex:none;width:36px;height:36px;border-radius:10px;border:0;background:transparent;color:var(--ink2);display:grid;place-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+</sc-if>
+
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+<p style="margin:0;display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>تصاویر شما به‌صورت پیش‌فرض ذخیره نمی‌شوند.</p>
+<button onClick="{{ useSample }}" style="background:none;border:0;padding:10px 0;color:var(--accent);font-size:13px;font-weight:600">امتحان با تصویر نمونه</button>
+</div>
+
+<ol style="list-style:none;margin:8px 0 0;padding:18px 0 0;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+<li style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;color:var(--ink3)">۱</span><span style="font-size:13px;font-weight:600">آپلود</span></li>
+<li style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;color:var(--ink3)">۲</span><span style="font-size:13px;font-weight:600">تشخیص</span></li>
+<li style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;color:var(--ink3)">۳</span><span style="font-size:13px;font-weight:600">برش</span></li>
+<li style="display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;color:var(--ink3)">۴</span><span style="font-size:13px;font-weight:600">دانلود</span></li>
+</ol>
+<div style="flex:1"></div>
+<footer style="display:flex;justify-content:center;padding-top:8px"><a href="https://nias.ir/" target="_blank" rel="noopener" dir="ltr" style="font-size:12px;color:var(--ink3)">Developed by Nias</a></footer>
+</div>
+</main>
+</sc-if>
+
+<!-- ANALYZING -->
+<sc-if value="{{ isAnalyzing }}" hint-placeholder-val="{{ false }}">
+<main style="flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:16px;align-items:center">
+<div style="width:100%;max-width:520px;height:420px;background:var(--s2);border-radius:18px;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;overflow:hidden">
+<div style="position:relative;height:100%;aspect-ratio:{{ imgAspect }};max-width:100%;border-radius:8px;overflow:hidden">
+<img src="{{ imgSrc }}" alt="اسکرین‌شات آپلودشده" style="width:100%;height:100%;display:block;object-fit:fill;filter:saturate(.6) brightness(.92)">
+<div style="position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.08))"></div>
+{{ scanLine }}
+</div>
+</div>
+<div role="status" aria-live="polite" style="width:100%;max-width:520px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:center;gap:10px">{{ spinner }}<strong style="font-size:16px;font-weight:600">در حال تشخیص پیام‌ها...</strong></div>
+<ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ anSteps }}" as="a" hint-placeholder-count="4">
+<li style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:{{ a.color }}">
+<span style="width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:{{ a.dotBg }};color:var(--accentInk)"><sc-if value="{{ a.done }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg></sc-if></span>
+{{ a.label }}
+</li>
+</sc-for>
+</ul>
+<p style="margin:0;font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>پردازش در مرورگر خودت انجام می‌شود.</p>
+</div>
+</main>
+<div style="flex:none;padding:12px 16px 16px;border-top:1px solid var(--line);background:var(--surface)">
+<button onClick="{{ goHome }}" style="width:100%;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:14px;font-weight:500">لغو</button>
+</div>
+</sc-if>
+
+<!-- REVIEW / WORKSPACE -->
+<sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+<main style="flex:1;overflow:auto">
+<div style="max-width:1080px;margin:0 auto;padding:16px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<section aria-label="پیش‌نمایش ناحیه" style="flex:1 1 340px;min-width:0;display:flex;flex-direction:column;gap:10px">
+<div role="tablist" aria-label="حالت نمایش" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--s2);border-radius:12px">
+<sc-for list="{{ modeTabs }}" as="m" hint-placeholder-count="3">
+<button role="tab" aria-selected="{{ m.sel }}" onClick="{{ m.pick }}" style="height:38px;border-radius:9px;border:0;background:{{ m.bg }};color:{{ m.color }};font-size:13.5px;font-weight:{{ m.weight }};box-shadow:{{ m.shadow }};transition:background .15s">{{ m.label }}</button>
+</sc-for>
+</div>
+<div style="height:{{ previewH }};background:var(--s2);border-radius:18px;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;overflow:hidden">
+<div style="position:relative;height:100%;aspect-ratio:{{ imgAspect }};max-width:100%;border-radius:6px;overflow:hidden">
+<img src="{{ imgSrc }}" alt="اسکرین‌شات با ناحیه تشخیص‌داده‌شده" style="width:100%;height:100%;display:block">
+<sc-if value="{{ showOverlay }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;left:{{ ov.l }};top:{{ ov.t }};width:{{ ov.w }};height:{{ ov.h }};border:2px {{ ovStyle }} {{ ovColor }};border-radius:4px;box-shadow:0 0 0 9999px rgba(12,12,14,.52);box-sizing:border-box;transition:left .25s,top .25s,width .25s,height .25s">
+<span style="position:absolute;bottom:calc(100% + 6px);right:0;padding:3px 8px;border-radius:7px;background:{{ ovColor }};color:#fff;font-size:11px;font-weight:600;white-space:nowrap">{{ ovLabel }}</span>
+</div>
+</sc-if>
+</div>
+</div>
+</section>
+
+<aside style="flex:1 1 300px;max-width:420px;min-width:0;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<span style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:999px;background:{{ pillBg }};color:{{ pillInk }};font-size:12.5px;font-weight:600"><span style="width:7px;height:7px;border-radius:50%;background:currentColor"></span>{{ pillLabel }}</span>
+<p style="margin:0;font-size:14px;line-height:1.85;color:var(--ink2);text-wrap:pretty">{{ statusText }}</p>
+</div>
+
+<sc-if value="{{ needsManual }}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:14px;background:var(--warnSoft)">
+<div style="display:flex;gap:10px;align-items:flex-start"><span style="flex:none;color:var(--warn);margin-top:2px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.01"></path></svg></span><strong style="font-size:14px;font-weight:600;line-height:1.7">{{ manualTitle }}</strong></div>
+<button onClick="{{ openEditorMsg }}" style="height:44px;border-radius:11px;border:0;background:var(--ink);color:var(--bg);font-size:14px;font-weight:600">تنظیم دستی</button>
+</div>
+</sc-if>
+
+<dl style="margin:0;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden">
+<sc-for list="{{ details }}" as="d" hint-placeholder-count="4">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-top:{{ d.border }}">
+<dt style="font-size:13px;color:var(--ink2)">{{ d.k }}</dt>
+<dd style="margin:0;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">{{ d.v }}</dd>
+</div>
+</sc-for>
+</dl>
+<p style="margin:0;display:flex;gap:8px;font-size:12px;line-height:1.75;color:var(--ink3)"><svg style="flex:none;margin-top:3px" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>تشخیص پیام‌ها با تحلیل تصویر در مرورگر انجام شد و تصویر به سرویس خارجی ارسال نشده است.</p>
+</aside>
+</div>
+</main>
+<div style="flex:none;display:flex;gap:10px;padding:12px 16px 16px;border-top:1px solid var(--line);background:var(--surface)">
+<button onClick="{{ reviewSecondary }}" style="flex:1;height:50px;border-radius:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:7px">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 2v14a2 2 0 0 0 2 2h14M2 6h14a2 2 0 0 1 2 2v14"></path></svg>{{ secondaryLabel }}</button>
+<button onClick="{{ reviewPrimary }}" style="flex:1.4;height:50px;border-radius:13px;border:0;background:var(--accent);color:var(--accentInk);font-size:14.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px">{{ primaryLabel }}<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg></button>
+</div>
+</sc-if>
+
+<!-- CROP EDITOR -->
+<sc-if value="{{ isEditor }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;background:#0e0e10;color:#ececee;min-height:0">
+<div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 8px">
+<button onClick="{{ cancelEditor }}" style="height:44px;padding:0 14px;border:0;border-radius:10px;background:transparent;color:#c9c9cf;font-size:14px">انصراف</button>
+<strong style="font-size:15px;font-weight:600">تنظیم ناحیه</strong>
+<button onClick="{{ confirmEditor }}" style="height:40px;padding:0 16px;border:0;border-radius:10px;background:oklch(0.74 0.12 170);color:#0c1714;font-size:14px;font-weight:700">تأیید</button>
+</div>
+<div role="tablist" aria-label="ناحیه در حال ویرایش" style="flex:none;margin:0 16px 8px;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#1c1c20;border-radius:12px">
+<sc-for list="{{ editTabs }}" as="t" hint-placeholder-count="2">
+<button role="tab" aria-selected="{{ t.sel }}" onClick="{{ t.pick }}" style="height:36px;border:0;border-radius:9px;background:{{ t.bg }};color:{{ t.color }};font-size:13px;font-weight:{{ t.weight }}">{{ t.label }}</button>
+</sc-for>
+</div>
+<div ref="{{ stageRef }}" data-h="pan" onPointerDown="{{ hDown }}" onPointerMove="{{ hMove }}" onPointerUp="{{ hUp }}" onPointerCancel="{{ hUp }}" onWheel="{{ onWheel }}" style="flex:1;min-height:0;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:28px;box-sizing:border-box;touch-action:none;cursor:{{ stageCursor }}">
+<div ref="{{ boxRef }}" style="position:relative;height:100%;aspect-ratio:{{ imgAspect }};max-width:100%;transform:{{ boxTransform }};transform-origin:center;transition:{{ boxTransition }}">
+<img src="{{ imgSrc }}" alt="تصویر در حال برش" draggable="false" style="width:100%;height:100%;display:block;user-select:none;pointer-events:none">
+<div style="position:absolute;left:{{ other.l }};top:{{ other.t }};width:{{ other.w }};height:{{ other.h }};border:1px dashed rgba(255,255,255,.45);box-sizing:border-box;pointer-events:none;z-index:1"></div>
+<div tabindex="0" role="slider" aria-label="{{ rectAria }}" aria-valuetext="{{ dimsText }}" data-h="move" onPointerDown="{{ hDown }}" onPointerMove="{{ hMove }}" onPointerUp="{{ hUp }}" onPointerCancel="{{ hUp }}" onKeyDown="{{ onRectKey }}" style="position:absolute;z-index:2;left:{{ rect.l }};top:{{ rect.t }};width:{{ rect.w }};height:{{ rect.h }};box-shadow:0 0 0 9999px rgba(0,0,0,.6);outline:1px solid rgba(255,255,255,.9);cursor:move;touch-action:none">
+<sc-if value="{{ dragging }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(to right,transparent calc(33.33% - .5px),rgba(255,255,255,.35) calc(33.33% - .5px),rgba(255,255,255,.35) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.35) calc(66.66% - .5px),rgba(255,255,255,.35) calc(66.66% + .5px),transparent calc(66.66% + .5px)),linear-gradient(to bottom,transparent calc(33.33% - .5px),rgba(255,255,255,.35) calc(33.33% - .5px),rgba(255,255,255,.35) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.35) calc(66.66% - .5px),rgba(255,255,255,.35) calc(66.66% + .5px),transparent calc(66.66% + .5px))"></div>
+</sc-if>
+<div data-h="nw" onPointerDown="{{ hDown }}" onPointerMove="{{ hMove }}" onPointerUp="{{ hUp }}" onPointerCancel="{{ hUp }}" style="position:absolute;left:-22px;top:-22px;width:44px;height:44px;cursor:nwse-resize;transform:{{ hs }}"><span style="position:absolute;left:19px;top:19px;width:18px;height:18px;border-left:3px solid #fff;border-top:3px solid #fff"></span></div>
+<div data-h="ne" onPointerDown="{{ hDown }}" onPointerMove="{{ hMove }}" onPointerUp="{{ hUp }}" onPointerCancel="{{ hUp }}" style="position:absolute;right:-22px;top:-22px;width:44px;height:44px;cursor:nesw-resize;transform:{{ hs }}"><span style="position:absolute;right:19px;top:19px;width:18px;height:18px;border-right:3px solid #fff;border-top:3px solid #fff"></span></div>
+<div data-h="sw" onPointerDown="{{ hDown }}" onPointerMove="{{ hMove }}" onPointerUp="{{ hUp }}" onPointerCancel="{{ hUp }}" style="position:absolute;left:-22px;bottom:-22px;width:44px;height:44px;cursor:nesw-resize;transform:{{ hs }}"><span style="position:absolute;left:19px;bottom:19px;width:18px;height:18px;border-left:3px solid #fff;border-bottom:3px solid #fff"></span></div>
+<div data-h="se" onPointerDown="{{ hDown }}" onPointerMove="{{ hMove }}" onPointerUp="{{ hUp }}" onPointerCancel="{{ hUp }}" style="position:absolute;right:-22px;bottom:-22px;width:44px;height:44px;cursor:nwse-resize;transform:{{ hs }}"><span style="position:absolute;right:19px;bottom:19px;width:18px;height:18px;border-right:3px solid #fff;border-bottom:3px solid #fff"></span></div>
+<div data-h="n" onPointerDown="{{ hDown }}" onPointerMove="{{ hMove }}" onPointerUp="{{ hUp }}" onPointerCancel="{{ hUp }}" style="position:absolute;left:50%;top:-22px;margin-left:-22px;width:44px;height:44px;cursor:ns-resize;transform:{{ hs }}"><span style="position:absolute;left:8px;top:20px;width:28px;height:4px;border-radius:2px;background:#fff"></span></div>
+<div data-h="s" onPointerDown="{{ hDown }}" onPointerMove="{{ hMove }}" onPointerUp="{{ hUp }}" onPointerCancel="{{ hUp }}" style="position:absolute;left:50%;bottom:-22px;margin-left:-22px;width:44px;height:44px;cursor:ns-resize;transform:{{ hs }}"><span style="position:absolute;left:8px;bottom:20px;width:28px;height:4px;border-radius:2px;background:#fff"></span></div>
+<div data-h="w" onPointerDown="{{ hDown }}" onPointerMove="{{ hMove }}" onPointerUp="{{ hUp }}" onPointerCancel="{{ hUp }}" style="position:absolute;left:-22px;top:50%;margin-top:-22px;width:44px;height:44px;cursor:ew-resize;transform:{{ hs }}"><span style="position:absolute;left:20px;top:8px;width:4px;height:28px;border-radius:2px;background:#fff"></span></div>
+<div data-h="e" onPointerDown="{{ hDown }}" onPointerMove="{{ hMove }}" onPointerUp="{{ hUp }}" onPointerCancel="{{ hUp }}" style="position:absolute;right:-22px;top:50%;margin-top:-22px;width:44px;height:44px;cursor:ew-resize;transform:{{ hs }}"><span style="position:absolute;right:20px;top:8px;width:4px;height:28px;border-radius:2px;background:#fff"></span></div>
+</div>
+</div>
+<span style="position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.65);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;pointer-events:none">{{ dimsText }}</span>
+</div>
+<div style="flex:none;display:flex;flex-direction:column;gap:10px;padding:12px 16px 18px;border-top:1px solid #222226">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+<div style="display:flex;align-items:center;gap:4px;background:#1c1c20;border-radius:12px;padding:3px">
+<button onClick="{{ zoomOut }}" aria-label="کوچک‌نمایی" style="width:44px;height:40px;border:0;border-radius:9px;background:transparent;color:#ececee;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"></path></svg></button>
+<span style="min-width:48px;text-align:center;font-size:13px;font-variant-numeric:tabular-nums">{{ zoomText }}</span>
+<button onClick="{{ zoomIn }}" aria-label="بزرگ‌نمایی" style="width:44px;height:40px;border:0;border-radius:9px;background:transparent;color:#ececee;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg></button>
+</div>
+<button onClick="{{ resetDraft }}" style="height:46px;padding:0 14px;border:1px solid #2a2a2f;border-radius:12px;background:transparent;color:#ececee;font-size:13px;display:flex;align-items:center;gap:7px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4h4"></path></svg>بازنشانی</button>
+</div>
+<p style="margin:0;font-size:12px;color:#8b8b93;text-align:center">گوشه‌ها و لبه‌ها را بکشید. برای جابه‌جایی، داخل کادر را بکشید.</p>
+</div>
+</div>
+</sc-if>
+
+<!-- RESULTS -->
+<sc-if value="{{ isResults }}" hint-placeholder-val="{{ false }}">
+<main style="flex:1;overflow:auto">
+<div style="max-width:1080px;margin:0 auto;padding:18px 16px 24px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+<div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+<h2 style="margin:0;font-size:20px;font-weight:700">خروجی‌ها آماده‌اند</h2>
+<p style="margin:0;font-size:13px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ resultsSub }}</p>
+</div>
+<button onClick="{{ backToReview }}" style="flex:none;white-space:nowrap;height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:13px;display:flex;align-items:center;gap:6px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4h4"></path></svg>پردازش مجدد</button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+<sc-for list="{{ outputs }}" as="o" hint-placeholder-count="3">
+<article style="display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden">
+<div style="height:220px;background:var(--s2);display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;overflow:hidden">
+<div style="position:relative;width:{{ o.bw }};height:{{ o.bh }};aspect-ratio:{{ o.aspect }};max-width:100%;max-height:100%;overflow:hidden;border-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,.12);transition:transform .2s ease" style-hover="transform:scale(1.04)">
+<img src="{{ imgSrc }}" alt="{{ o.alt }}" style="position:absolute;left:{{ o.il }};top:{{ o.it }};width:{{ o.iw }};height:{{ o.ih }};max-width:none">
+</div>
+</div>
+<div style="padding:12px 12px 4px;display:flex;flex-direction:column;gap:3px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px"><strong style="font-size:15px;font-weight:700">{{ o.label }}</strong><span style="font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums">{{ o.dims }}</span></div>
+<span style="font-size:11.5px;color:var(--ink3);line-height:1.6">{{ o.info }}</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 12px 12px">
+<button onClick="{{ o.download }}" aria-label="{{ o.dlAria }}" style="height:44px;border-radius:10px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>دانلود</button>
+<button onClick="{{ o.copy }}" aria-label="{{ o.cpAria }}" style="height:44px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a1 1 0 0 1 1-1h10"></path></svg>کپی</button>
+</div>
+</article>
+</sc-for>
+</div>
+<p style="margin:0;font-size:12px;color:var(--ink3);line-height:1.75">خروجی‌ها با کیفیت اصلی و در قالب PNG ساخته می‌شوند. با بستن صفحه، تصویر و خروجی‌ها از حافظه پاک می‌شوند.</p>
+</div>
+</main>
+<div style="flex:none;padding:12px 16px 16px;border-top:1px solid var(--line);background:var(--surface)">
+<button onClick="{{ downloadAll }}" style="width:100%;height:52px;border-radius:13px;border:0;background:var(--accent);color:var(--accentInk);font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>دانلود همه <span style="font-weight:400;opacity:.85" dir="ltr">(ZIP)</span></button>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div role="status" aria-live="polite" style="position:absolute;left:50%;bottom:92px;transform:translateX(-50%);z-index:20;max-width:calc(100% - 32px);padding:10px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,.18);text-align:center">{{ toast }}</div>
+</sc-if>
+
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;frame&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mobile&quot;,&quot;fluid&quot;],&quot;default&quot;:&quot;mobile&quot;,&quot;tsType&quot;:&quot;'mobile'|'fluid'&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light'|'dark'&quot;,&quot;section&quot;:&quot;Preview&quot;},&quot;outcome&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;confident&quot;,&quot;review&quot;,&quot;low&quot;,&quot;none&quot;],&quot;default&quot;:&quot;confident&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Detection result&quot;},&quot;demoError&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;format&quot;,&quot;size&quot;,&quot;corrupt&quot;,&quot;dims&quot;,&quot;clip&quot;],&quot;default&quot;:&quot;none&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Upload error&quot;}}">
+const SAMPLE = { src: 'assets/sample-chat.jpg', w: 591, h: 1280, name: 'photo_2026-10-03_09-42-45.jpg' };
+const AUTO = { message: { x: 0, y: .7219, w: 1, h: .0664 }, thread: { x: 0, y: .4805, w: 1, h: .3078 } };
+const LOW = { message: { x: 0, y: .69, w: 1, h: .12 }, thread: { x: 0, y: .42, w: 1, h: .43 } };
+const FULL = { x: 0, y: 0, w: 1, h: 1 };
+const DARK = { '--bg': '#0f0f11', '--surface': '#17171a', '--s2': '#212125', '--ink': '#ececee', '--ink2': '#a3a3aa', '--ink3': '#75757d', '--line': 'rgba(255,255,255,.08)', '--accent': 'oklch(0.74 0.12 170)', '--accentSoft': 'oklch(0.3 0.05 170)', '--accentInk': '#0c1714', '--warn': 'oklch(0.8 0.12 80)', '--warnSoft': 'oklch(0.29 0.04 80)', '--danger': 'oklch(0.72 0.14 25)', '--dangerSoft': 'oklch(0.29 0.05 25)', '--backdrop': '#060607' };
+const MAX = 20 * 1024 * 1024, MAX_PX = 80e6, MIN = .06;
+const TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+const EXT = /\.(png|jpe?g|webp)$/i;
+const ERR = {
+  format: ['این فرمت پشتیبانی نمی‌شود', 'فقط فایل‌های PNG، JPG و WEBP قابل پردازش هستند.'],
+  size: ['حجم فایل بیشتر از حد مجاز است', 'حداکثر حجم ۲۰ مگابایت است. تصویر کوچک‌تری انتخاب کن.'],
+  corrupt: ['این تصویر قابل خواندن نیست', 'فایل ممکن است خراب باشد. دوباره اسکرین‌شات بگیر و امتحان کن.'],
+  dims: ['ابعاد تصویر خیلی بزرگ است', 'حداکثر ۸۰ مگاپیکسل پشتیبانی می‌شود.'],
+  clip: ['تصویری در کلیپ‌بورد پیدا نشد', 'اول از اسکرین‌شات کپی بگیر، بعد اینجا Ctrl+V بزن یا گزینه چسباندن را انتخاب کن.']
+};
+const MODES = [['original', 'اصلی'], ['message', 'پیام'], ['thread', 'پیام با ریپلای']];
+const AN = ['خواندن تصویر و ابعاد', 'تحلیل لبه‌ها و پس‌زمینه', 'تشخیص پیام‌های طرف مقابل', 'آماده‌سازی نسخه‌ها'];
+const fa = n => Number(n).toLocaleString('fa-IR', { useGrouping: false });
+const pct = v => (v * 100).toFixed(3) + '%';
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+let CRC;
+function crc32(d) { if (!CRC) { CRC = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CRC[n] = c >>> 0; } } let c = 0xFFFFFFFF; for (let i = 0; i < d.length; i++) c = CRC[(c ^ d[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function makeZip(files) {
+  const enc = new TextEncoder(), parts = [], cd = []; let off = 0;
+  for (const f of files) {
+    const nm = enc.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(12, 0x21, true); h.setUint32(14, crc, true); h.setUint32(18, sz, true); h.setUint32(22, sz, true); h.setUint16(26, nm.length, true);
+    parts.push(h, nm, f.data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(14, 0x21, true); c.setUint32(16, crc, true); c.setUint32(20, sz, true); c.setUint32(24, sz, true); c.setUint16(28, nm.length, true); c.setUint32(42, off, true);
+    cd.push(c, nm); off += 30 + nm.length + sz;
+  }
+  const cds = cd.reduce((s, p) => s + p.byteLength, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, cds, true); e.setUint32(16, off, true);
+  return new Blob([...parts, ...cd, e], { type: 'application/zip' });
+}
+
+class Component extends DCLogic {
+  state = { screen: 'landing', theme: this.props.theme ?? 'light', img: null, regions: AUTO, auto: AUTO, found: true, manual: false, mode: 'message', anStep: 0, error: this.props.demoError && this.props.demoError !== 'none' ? this.props.demoError : null, toast: null, dz: false, target: 'message', drafts: null, zoom: 1, pan: { x: 0, y: 0 }, dragging: false };
+  fileRef = React.createRef(); boxRef = React.createRef(); stageRef = React.createRef(); timers = [];
+
+  componentDidMount() {
+    this.onPaste = e => { if (this.state.screen !== 'landing') return; const it = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/')); if (it) { e.preventDefault(); this.handleFile(it.getAsFile()); } };
+    window.addEventListener('paste', this.onPaste);
+    this.reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  }
+  componentWillUnmount() { window.removeEventListener('paste', this.onPaste); this.clearTimers(); this.revoke(); }
+  componentDidUpdate(pp) {
+    if (pp.theme !== this.props.theme && this.props.theme) this.setState({ theme: this.props.theme });
+    if (pp.demoError !== this.props.demoError) this.setState({ screen: 'landing', error: this.props.demoError === 'none' ? null : this.props.demoError });
+    if (pp.outcome !== this.props.outcome && this.state.img && ['review', 'results'].includes(this.state.screen)) this.finishAnalysis();
+  }
+  clearTimers() { this.timers.forEach(clearTimeout); this.timers = []; }
+  revoke() { if (this._url) { URL.revokeObjectURL(this._url); this._url = null; } }
+  toastMsg(t) { clearTimeout(this._tt); this.setState({ toast: t }); this._tt = setTimeout(() => this.setState({ toast: null }), 2400); }
+
+  handleFile(file) {
+    if (!file) return;
+    const name = file.name || 'pasted.png';
+    if (!TYPES.includes(file.type) || !EXT.test(name)) return this.setState({ error: 'format' });
+    if (file.size > MAX) return this.setState({ error: 'size' });
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => {
+      if (im.naturalWidth * im.naturalHeight > MAX_PX) { URL.revokeObjectURL(url); return this.setState({ error: 'dims' }); }
+      this.revoke(); this._url = url;
+      this.start({ src: url, w: im.naturalWidth, h: im.naturalHeight, name });
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); this.setState({ error: 'corrupt' }); };
+    im.src = url;
+  }
+  start(img) {
+    this.clearTimers();
+    this.setState({ screen: 'analyzing', img, anStep: 0, error: null, manual: false, mode: 'message' });
+    const d = this.reduced ? 250 : 700;
+    for (let i = 1; i <= AN.length; i++) this.timers.push(setTimeout(() => i < AN.length ? this.setState({ anStep: i }) : this.finishAnalysis(), d * i));
+  }
+  finishAnalysis() {
+    const o = this.props.outcome ?? 'confident';
+    const r = o === 'low' ? LOW : o === 'none' ? { message: FULL, thread: FULL } : AUTO;
+    this.setState({ screen: 'review', regions: r, auto: r, found: o !== 'none', manual: false, mode: o === 'none' ? 'original' : 'message' });
+  }
+  goHome = () => { this.clearTimers(); this.revoke(); this.setState({ screen: 'landing', img: null, error: null }); };
+  openEditor(target) { this.setState({ screen: 'editor', target, drafts: { ...this.state.regions }, zoom: 1, pan: { x: 0, y: 0 } }); }
+
+  async cropBlob(key) {
+    const { img, regions } = this.state;
+    const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = img.src; });
+    const r = key === 'original' ? FULL : regions[key];
+    const sx = Math.round(r.x * img.w), sy = Math.round(r.y * img.h), sw = Math.max(1, Math.round(r.w * img.w)), sh = Math.max(1, Math.round(r.h * img.h));
+    const c = document.createElement('canvas'); c.width = sw; c.height = sh;
+    c.getContext('2d').drawImage(im, sx, sy, sw, sh, 0, 0, sw, sh);
+    const b = await new Promise(res => c.toBlob(res, 'image/png')); c.width = c.height = 0; return b;
+  }
+  fileBase() { return (this.state.img?.name || 'ayar').replace(/\.[^.]+$/, '').replace(/[^\w\u0600-\u06FF-]+/g, '-').slice(0, 40); }
+  save(blob, name) { const u = URL.createObjectURL(blob), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); }
+  async download(key) { try { this.save(await this.cropBlob(key), `${this.fileBase()}-${key}.png`); } catch { this.toastMsg('ساخت فایل با خطا مواجه شد. دوباره امتحان کن.'); } }
+  async copy(key) {
+    if (!navigator.clipboard?.write || typeof ClipboardItem === 'undefined') return this.toastMsg('مرورگر شما از کپی تصویر پشتیبانی نمی‌کند. از دانلود استفاده کن.');
+    try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': this.cropBlob(key) })]); this.toastMsg('تصویر کپی شد'); }
+    catch { this.toastMsg('مرورگر اجازه کپی تصویر را نداد. از دانلود استفاده کن.'); }
+  }
+  downloadAll = async () => {
+    try {
+      this.toastMsg('در حال ساخت فایل ZIP...');
+      const files = [];
+      for (const [k] of MODES) files.push({ name: `${this.fileBase()}-${k}.png`, data: new Uint8Array(await (await this.cropBlob(k)).arrayBuffer()) });
+      this.save(makeZip(files), `${this.fileBase()}-ayar.zip`); this.toastMsg('فایل ZIP آماده شد');
+    } catch { this.toastMsg('ساخت ZIP با خطا مواجه شد.'); }
+  };
+
+  hDown = e => {
+    const h = e.currentTarget.dataset.h; e.stopPropagation();
+    if (h === 'pan' && this.state.zoom <= 1) return;
+    const box = this.boxRef.current?.getBoundingClientRect(); if (!box) return;
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    this.drag = { h, sx: e.clientX, sy: e.clientY, r0: { ...this.state.drafts[this.state.target] }, p0: { ...this.state.pan }, bw: box.width, bh: box.height };
+    this.setState({ dragging: h !== 'pan' });
+  };
+  hMove = e => {
+    const d = this.drag; if (!d) return; e.stopPropagation();
+    if (d.h === 'pan') return this.setState({ pan: { x: d.p0.x + e.clientX - d.sx, y: d.p0.y + e.clientY - d.sy } });
+    const dx = (e.clientX - d.sx) / d.bw, dy = (e.clientY - d.sy) / d.bh, r0 = d.r0; let { x, y, w, h } = r0;
+    if (d.h === 'move') { x = clamp(r0.x + dx, 0, 1 - r0.w); y = clamp(r0.y + dy, 0, 1 - r0.h); }
+    if (d.h.includes('w')) { x = clamp(r0.x + dx, 0, r0.x + r0.w - MIN); w = r0.x + r0.w - x; }
+    if (d.h.includes('e')) w = clamp(r0.w + dx, MIN, 1 - r0.x);
+    if (d.h.includes('n')) { y = clamp(r0.y + dy, 0, r0.y + r0.h - MIN); h = r0.y + r0.h - y; }
+    if (d.h.includes('s')) h = clamp(r0.h + dy, MIN, 1 - r0.y);
+    this.setDraft({ x, y, w, h });
+  };
+  hUp = e => { if (!this.drag) return; e.stopPropagation(); this.drag = null; this.setState({ dragging: false }); };
+  setDraft(r) { this.setState(s => ({ drafts: { ...s.drafts, [s.target]: r } })); }
+  setZoom(z) { z = clamp(Math.round(z * 100) / 100, 1, 3); this.setState({ zoom: z, pan: z === 1 ? { x: 0, y: 0 } : this.state.pan }); }
+
+  renderVals() {
+    const s = this.state, dark = s.theme === 'dark', mobile = (this.props.frame ?? 'mobile') === 'mobile';
+    const img = s.img || SAMPLE, o = this.props.outcome ?? 'confident';
+    const dims = r => `${fa(Math.round(r.w * img.w))} × ${fa(Math.round(r.h * img.h))}`;
+    const box = r => ({ l: pct(r.x), t: pct(r.y), w: pct(r.w), h: pct(r.h) });
+    const stepIdx = { landing: 0, analyzing: 1, review: 2, editor: 2, results: 3 }[s.screen];
+    const label = { original: 'اصلی', message: 'پیام', thread: 'پیام با ریپلای' };
+
+    let pill, statusText, manualTitle = '';
+    if (s.manual) pill = ['تنظیم‌شده دستی', 'var(--accentSoft)', 'var(--accent)'], statusText = 'ناحیه‌ها را دستی تنظیم کردی. خروجی‌ها بر اساس همین کادرها ساخته می‌شوند.';
+    else if (o === 'confident') pill = ['تشخیص مطمئن', 'var(--accentSoft)', 'var(--accent)'], statusText = 'پیام طرف مقابل پیدا شد؛ یک نسخه فقط با حباب پیام و آواتار، و یک نسخه همراه با ریپلای استوری. اگر لازم است، کادرها را دستی تنظیم کن.';
+    else if (o === 'review') pill = ['نیاز به بررسی', 'var(--warnSoft)', 'var(--warn)'], statusText = 'پیام پیدا شد، ولی بهتر است قبل از ساخت خروجی مرز کادرها را بررسی کنی.';
+    else if (o === 'low') pill = ['تنظیم دستی', 'var(--dangerSoft)', 'var(--danger)'], statusText = 'کادر پیشنهادی ممکن است بخشی از پیام‌های دیگر یا زمان‌ها را هم شامل شود.', manualTitle = 'تشخیص پیام با اطمینان کافی انجام نشد.';
+    else pill = ['تنظیم دستی', 'var(--dangerSoft)', 'var(--danger)'], statusText = 'ممکن است این تصویر اسکرین‌شات چت نباشد یا پیامی از طرف مقابل نداشته باشد. می‌توانی کادر را خودت مشخص کنی.', manualTitle = 'پیامی از طرف مقابل در این تصویر پیدا نشد.';
+    const needsManual = !s.manual && (o === 'low' || o === 'none');
+    const ovR = s.regions[s.mode] || FULL;
+
+    const drafts = s.drafts || s.regions, cur = drafts[s.target] || FULL, oth = drafts[s.target === 'message' ? 'thread' : 'message'] || FULL;
+
+    return {
+      darkVars: dark ? DARK : {}, isDark: dark, isLight: !dark,
+      outerPad: mobile ? '24px' : '0', appW: mobile ? '390px' : '100%', appH: mobile ? '844px' : '100vh', appR: mobile ? '40px' : '0',
+      appShadow: mobile ? '0 0 0 1px var(--line), 0 30px 80px -20px rgba(0,0,0,.25)' : 'none',
+      previewH: mobile ? '400px' : 'min(72vh, 680px)',
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      goHome: this.goHome,
+      showHeader: s.screen !== 'editor', showNew: s.screen !== 'landing' && s.screen !== 'analyzing',
+      showStepper: ['analyzing', 'review', 'results'].includes(s.screen),
+      steps: ['آپلود', 'تشخیص', 'برش', 'دانلود'].map((l, i) => ({ label: l, num: i < stepIdx ? '✓' : fa(i + 1), color: i <= stepIdx ? 'var(--ink)' : 'var(--ink3)', weight: i === stepIdx ? 600 : 400, dotBg: i < stepIdx ? 'var(--accent)' : i === stepIdx ? 'var(--ink)' : 'var(--s2)', dotInk: i <= stepIdx ? 'var(--bg)' : 'var(--ink3)', notLast: i < 3 })),
+      isLanding: s.screen === 'landing', isAnalyzing: s.screen === 'analyzing', isReview: s.screen === 'review', isEditor: s.screen === 'editor', isResults: s.screen === 'results',
+      // landing
+      fileRef: this.fileRef, pickFile: () => this.fileRef.current?.click(),
+      onFileChange: e => { this.handleFile(e.target.files?.[0]); e.target.value = ''; },
+      onDragOver: e => { e.preventDefault(); if (!s.dz) this.setState({ dz: true }); },
+      onDragLeave: () => this.setState({ dz: false }),
+      onDrop: e => { e.preventDefault(); this.setState({ dz: false }); this.handleFile(e.dataTransfer.files?.[0]); },
+      dzBorder: s.dz ? 'var(--accent)' : 'color-mix(in srgb, var(--ink) 18%, transparent)', dzBg: s.dz ? 'var(--accentSoft)' : 'var(--surface)',
+      pasteClip: async () => {
+        try { const items = await navigator.clipboard.read(); for (const it of items) { const t = it.types.find(x => x.startsWith('image/')); if (t) { const b = await it.getType(t); return this.handleFile(new File([b], 'pasted.' + t.split('/')[1], { type: t })); } } this.setState({ error: 'clip' }); }
+        catch { this.setState({ error: 'clip' }); }
+      },
+      useSample: () => this.start(SAMPLE),
+      hasError: !!s.error, errTitle: s.error ? ERR[s.error][0] : '', errBody: s.error ? ERR[s.error][1] : '', clearError: () => this.setState({ error: null }),
+      // shared image
+      imgSrc: img.src, imgAspect: `${img.w} / ${img.h}`,
+      // analyzing
+      scanLine: React.createElement('div', { key: 'scan', style: { position: 'absolute', left: 0, right: 0, top: '50%', height: 2, background: 'var(--accent)', boxShadow: '0 0 28px 8px color-mix(in oklch, var(--accent) 40%, transparent)', animation: 'ayarScan 1.4s ease-in-out infinite alternate' } }),
+      spinner: React.createElement('span', { key: 'sp', 'aria-hidden': true, style: { width: 18, height: 18, borderRadius: '50%', border: '2px solid var(--s2)', borderTopColor: 'var(--accent)', animation: 'ayarSpin .8s linear infinite', flex: 'none' } }),
+      anSteps: AN.map((l, i) => ({ label: l, done: i < s.anStep, color: i <= s.anStep ? 'var(--ink)' : 'var(--ink3)', dotBg: i < s.anStep ? 'var(--accent)' : i === s.anStep ? 'color-mix(in srgb, var(--accent) 35%, transparent)' : 'var(--s2)' })),
+      // review
+      modeTabs: MODES.map(([k, l]) => ({ label: l, sel: s.mode === k, pick: () => this.setState({ mode: k }), bg: s.mode === k ? 'var(--surface)' : 'transparent', color: s.mode === k ? 'var(--ink)' : 'var(--ink2)', weight: s.mode === k ? 600 : 400, shadow: s.mode === k ? '0 1px 2px rgba(0,0,0,.08)' : 'none' })),
+      showOverlay: s.mode !== 'original' && (s.found || s.manual), ov: box(ovR), ovLabel: `${label[s.mode]} · ${dims(ovR)}`,
+      ovColor: needsManual ? 'var(--warn)' : 'var(--accent)', ovStyle: needsManual ? 'dashed' : 'solid',
+      pillLabel: pill[0], pillBg: pill[1], pillInk: pill[2], statusText, needsManual, manualTitle,
+      details: [['تصویر اصلی', dims(FULL)], ['پیام', s.found || s.manual ? dims(s.regions.message) : '—'], ['پیام با ریپلای', s.found || s.manual ? dims(s.regions.thread) : '—'], ['روش تشخیص', 'تحلیل محلی']].map(([k, v], i) => ({ k, v, border: i ? '1px solid var(--line)' : '0' })),
+      openEditorMsg: () => this.openEditor('message'),
+      secondaryLabel: needsManual ? 'تصویر دیگر' : 'تنظیم دستی',
+      primaryLabel: needsManual ? 'تنظیم دستی' : 'ساخت خروجی‌ها',
+      reviewSecondary: () => needsManual ? this.goHome() : this.openEditor(s.mode === 'thread' ? 'thread' : 'message'),
+      reviewPrimary: () => needsManual ? this.openEditor('message') : this.setState({ screen: 'results' }),
+      // editor
+      stageRef: this.stageRef, boxRef: this.boxRef, hDown: this.hDown, hMove: this.hMove, hUp: this.hUp,
+      editTabs: [['message', 'پیام'], ['thread', 'پیام با ریپلای']].map(([k, l]) => ({ label: l, sel: s.target === k, pick: () => this.setState({ target: k }), bg: s.target === k ? '#2e2e34' : 'transparent', color: s.target === k ? '#fff' : '#9a9aa2', weight: s.target === k ? 600 : 400 })),
+      rect: box(cur), other: box(oth), dimsText: dims(cur), rectAria: s.target === 'message' ? 'کادر پیام؛ با کلیدهای جهت جابه‌جا کنید' : 'کادر پیام با ریپلای؛ با کلیدهای جهت جابه‌جا کنید',
+      dragging: s.dragging, hs: `scale(${1 / s.zoom})`,
+      boxTransform: `translate(${s.pan.x}px, ${s.pan.y}px) scale(${s.zoom})`, boxTransition: this.drag ? 'none' : 'transform .18s ease',
+      stageCursor: s.zoom > 1 ? 'grab' : 'default', zoomText: fa(Math.round(s.zoom * 100)) + '٪',
+      zoomIn: () => this.setZoom(s.zoom + .25), zoomOut: () => this.setZoom(s.zoom - .25),
+      onWheel: e => this.setZoom(s.zoom - e.deltaY * .002),
+      onRectKey: e => {
+        const st = e.shiftKey ? .02 : .005, m = { ArrowLeft: [-st, 0], ArrowRight: [st, 0], ArrowUp: [0, -st], ArrowDown: [0, st] }[e.key]; if (!m) return;
+        e.preventDefault(); this.setDraft({ ...cur, x: clamp(cur.x + m[0], 0, 1 - cur.w), y: clamp(cur.y + m[1], 0, 1 - cur.h) });
+      },
+      resetDraft: () => { this.setDraft({ ...(s.found ? s.auto[s.target] : FULL) }); this.setState({ zoom: 1, pan: { x: 0, y: 0 } }); },
+      cancelEditor: () => this.setState({ screen: 'review' }),
+      confirmEditor: () => this.setState({ screen: 'review', regions: { ...s.drafts }, manual: true, mode: s.target }),
+      // results
+      resultsSub: `۳ نسخه از ${img.name}`,
+      backToReview: () => this.setState({ screen: 'review' }),
+      outputs: MODES.map(([k, l]) => {
+        const r = k === 'original' ? FULL : s.regions[k];
+        return {
+          label: l, dims: dims(r), ...((r.w * img.w) / (r.h * img.h) > 1.1 ? { bw: '100%', bh: 'auto' } : { bw: 'auto', bh: '100%' }), aspect: `${r.w * img.w} / ${r.h * img.h}`, alt: `پیش‌نمایش نسخه ${l}`,
+          info: k === 'original' ? 'بدون تغییر' : `برش تمام‌عرض از y ${fa(Math.round(r.y * img.h))}`,
+          il: pct(-r.x / r.w), it: pct(-r.y / r.h), iw: pct(1 / r.w), ih: pct(1 / r.h),
+          download: () => this.download(k), copy: () => this.copy(k), dlAria: `دانلود نسخه ${l}`, cpAria: `کپی نسخه ${l}`
+        };
+      }),
+      downloadAll: this.downloadAll,
+      hasToast: !!s.toast, toast: s.toast || ''
+    };
+  }
+}
+</script>
+</body>
+</html>
