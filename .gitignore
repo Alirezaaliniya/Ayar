@@ -1,2 +1,5 @@
 # Ayar (ns-ayar) — runtime data: usage database and the server secret / admin password hash
 server/data/
+
+# Built upload package (node tools/ns-ayar-build.js)
+dist/

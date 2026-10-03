@@ -1,0 +1,21 @@
+# Ayar (ns-ayar) — Apache settings for the app folder.
+
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddType font/woff2 .woff2
+  AddType image/x-icon .ico
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "same-origin"
+  # The service worker, page and manifest must always be revalidated so updates are noticed.
+  <FilesMatch "^(ns-ayar-sw\.js|index\.html|ns-ayar\.webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+# Hidden files and docs are not served.
+<FilesMatch "(^\.|\.md$)">
+  Require all denied
+</FilesMatch>

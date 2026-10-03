@@ -22,11 +22,22 @@ All CSS classes, ids, data attributes, storage keys, cache names and files use t
 | `admin/` | Admin panel (usage report, CSV export) |
 | `server/` | Shared PHP code + `data/` (SQLite database, secret). Not web-accessible |
 
+## Deploying
+
+1. `node tools/ns-ayar-build.js` — stamps the version and writes `dist/ns-ayar-upload.zip`
+   (only what the live site needs: no tests, dev tools, docs or local data).
+2. Upload and extract it on the server (it contains an `ayar/` folder).
+3. Make `ayar/server/data/` writable by PHP (the database and secret key are created there on first use).
+4. Open `ayar/admin/` and set the admin password (from the server itself, or with
+   `php tools/ns-ayar-admin-password.php`).
+5. Serve the site over HTTPS (needed for offline use and installing).
+
 ## Publishing an update
 
 1. Change the files.
-2. Run `node tools/ns-ayar-release.js` (it hashes every cached file into `NS_AYAR_VERSION`).
-3. Upload everything to the server.
+2. Run `node tools/ns-ayar-build.js` (it also runs `tools/ns-ayar-release.js`, which hashes every
+   cached file into `NS_AYAR_VERSION`).
+3. Upload the new package, keeping the server's `server/data/` folder (it holds the usage data).
 
 Users who already have the app get the new version in the background the next time they are
 online, then see a "new version is ready" banner. It only switches when they tap update, so no
