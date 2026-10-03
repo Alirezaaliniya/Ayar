@@ -3,7 +3,7 @@
  * Releasing an update: change any app file, then run `node tools/ns-ayar-release.js`.
  * It rewrites NS_AYAR_VERSION below from a hash of NS_AYAR_ASSETS, so browsers see a new
  * service worker, download the new files in the background and show the "update" banner. */
-const NS_AYAR_VERSION = '2026.10.03-b6aa6a8e';
+const NS_AYAR_VERSION = '2026.10.03-efe5407a';
 const NS_AYAR_CACHE = 'ns-ayar-app-' + NS_AYAR_VERSION;
 const NS_AYAR_SHARE_CACHE = 'ns-ayar-share';
 const NS_AYAR_ASSETS = [

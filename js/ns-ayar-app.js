@@ -633,7 +633,12 @@
     const prev = navable.slice().reverse().find(([, n]) => n < idx), next = navable.find(([, n]) => n > idx);
     const allSel = outs.every(o => isSel(it, o)), tall = it.h / it.w > .9, red = rects(it), longN = selectedBlocks(it).length;
 
-    const overlays = vis.map(o => `<div class="ns-ayar-ov ${needsManual ? 'ns-ayar-warn' : isSel(it, o) ? 'ns-ayar-sel' : ''}" style="${boxStyle(cutR(o.b))}"><b>${fa(o.n)}</b></div>`).join('')
+    // Detected regions are buttons: tapping one on the image selects/deselects that message's output
+    // (same state as the checkbox on its card below).
+    const overlays = vis.map(o => {
+      const sel = isSel(it, o);
+      return `<button type="button" class="ns-ayar-ov${needsManual ? ' ns-ayar-warn' : ''}${sel ? ' ns-ayar-sel' : ''}" style="${boxStyle(cutR(o.b))}" ${act('toggleOut', o.key)} aria-pressed="${sel}" aria-label="پیام ${fa(o.n)}، ${o.label}، ${sel ? 'انتخاب شده' : 'انتخاب نشده'}"><b>${sel ? I.check(10) : ''}${fa(o.n)}</b></button>`;
+    }).join('')
       + red.map(q => `<div class="ns-ayar-ov ns-ayar-redact" style="${boxStyle(q)}"></div>`).join('')
       + it.blur.map(z => `<div class="ns-ayar-ov ns-ayar-redact ns-ayar-manual-blur" style="${boxStyle(z.r)}"></div>`).join('');
 
@@ -680,6 +685,7 @@
           </div>
         </div>` : ''}
         <div class="ns-ayar-stage${tall ? ' ns-ayar-tall' : ''}"><div class="ns-ayar-fit" style="--ns-ayar-ar:${ar(it.w, it.h)}"><img src="${esc(it.src)}" alt="اسکرین‌شات با پیام‌های تشخیص‌داده‌شده">${overlays}</div></div>
+        ${vis.length ? `<p class="ns-ayar-pv-hint">روی هر ناحیه‌ی شماره‌دار بزن تا برای خروجی انتخاب یا حذف شود · ${fa(vis.filter(o => isSel(it, o)).length)} از ${fa(vis.length)} پیام انتخاب شده</p>` : ''}
       </section>
       <aside class="ns-ayar-rv-side">
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -925,12 +931,14 @@
   // ---------- offline app & updates ----------
   // A new version is downloaded in the background; it only takes over when the user taps "update",
   // so nobody loses work mid-task.
+  let updateRequested = false;
   function offerUpdate(reg) {
     if (!$update || !reg.waiting) return;
     $update.hidden = false;
     $update.querySelector('[data-ns-ayar-update="now"]').onclick = () => {
       if (S.items.length && !confirm('با به‌روزرسانی، تصویرهای فعلی بسته می‌شوند، ادامه می‌دهی؟')) return;
       track('update'); flushStats(true);
+      updateRequested = true;
       reg.waiting.postMessage('ns-ayar-skip-waiting');
     };
     $update.querySelector('[data-ns-ayar-update="later"]').onclick = () => { $update.hidden = true; };
@@ -944,8 +952,14 @@
           const nw = reg.installing;
           nw && nw.addEventListener('statechange', () => { if (nw.state === 'installed' && navigator.serviceWorker.controller) offerUpdate(reg); });
         });
-        let reloaded = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloaded) { reloaded = true; location.reload(); } });
+        // Reload only for an update the user asked for. On a first visit the new service worker also
+        // takes control (clients.claim), which fires controllerchange too; reloading then threw away
+        // the image the user had just picked.
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!updateRequested) return;
+          updateRequested = false;
+          location.reload();
+        });
         // Check for a new version when the app comes back to the foreground, and hourly.
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
         setInterval(() => reg.update().catch(() => {}), 36e5);
