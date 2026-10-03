@@ -65,5 +65,8 @@ file names, IP addresses or personal data. Each browser gets a random id, so "us
 browsers/devices. Events are queued in the browser and sent when online, so offline use is
 counted once the device reconnects (duplicates are ignored). Data older than 400 days is deleted.
 
-Requirements: PHP 8.1+ with `pdo_sqlite`. The `server/`, `server/data/` and `tools/` folders are
+Requirements: PHP 7.4+ (8.1+ recommended) with `pdo_sqlite`, or `pdo_mysql` and a MySQL 5.7+ / MariaDB 10.2+
+database. Without SQLite (e.g. DirectAdmin) the setup page asks for the MySQL details; all tables use
+the `ns_ayar_` prefix, so an existing database can be shared. If the server is missing something, the
+panel shows a checklist of what to fix instead of an error. The `server/`, `server/data/` and `tools/` folders are
 protected with `.htaccess` (Apache); on nginx, deny them in the site config.

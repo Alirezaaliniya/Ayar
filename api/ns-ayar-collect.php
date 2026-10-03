@@ -49,6 +49,11 @@ if (!is_string($vid) || !preg_match('/^[a-z0-9-]{8,40}$/', $vid) || !is_array($e
 }
 $installed = !empty($body['inst']) ? 1 : 0;
 
+// Before the admin has configured a database (MySQL hosts), events stay queued in the browsers.
+if (ns_ayar_db_driver() === null) {
+    ns_ayar_reply(503);
+}
+
 try {
     // Abuse limits: per hashed IP and per visitor id, per day.
     if (!ns_ayar_limit('ip:' . ns_ayar_ip_key(), 5000, 86400, count($events)) || !ns_ayar_limit('vid:' . $vid, 3000, 86400, count($events))) {
@@ -58,7 +63,8 @@ try {
     $db = ns_ayar_db();
     [$device, $os, $browser] = ns_ayar_ua();
     $now = time();
-    $ins = $db->prepare('INSERT OR IGNORE INTO ns_ayar_events (eid, vid, type, ts, day, data, device, os, browser, installed, offline, received) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    $mysql = ns_ayar_db_driver() === 'mysql';
+    $ins = $db->prepare(($mysql ? 'INSERT IGNORE' : 'INSERT OR IGNORE') . ' INTO ns_ayar_events (eid, vid, type, ts, day, data, device, os, browser, installed, offline, received) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
     $db->beginTransaction();
     $added = 0;
     foreach ($events as $e) {
@@ -95,15 +101,16 @@ try {
         $ins->execute([$eid, $vid, $type, $ts, date('Y-m-d', $ts), json_encode($data), $device, $os, $browser, $installed, !empty($e['off']) || $now - $ts > 300 ? 1 : 0, $now]);
         $added += $ins->rowCount();
     }
-    $db->prepare('INSERT INTO ns_ayar_visitors (vid, first_seen, last_seen, device, os, browser, installed) VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(vid) DO UPDATE SET last_seen = MAX(last_seen, excluded.last_seen), device = excluded.device, os = excluded.os, browser = excluded.browser, installed = MAX(installed, excluded.installed)')
+    $db->prepare('INSERT INTO ns_ayar_visitors (vid, first_seen, last_seen, device, os, browser, installed) VALUES (?, ?, ?, ?, ?, ?, ?) ' . ($mysql
+        ? 'ON DUPLICATE KEY UPDATE last_seen = GREATEST(last_seen, VALUES(last_seen)), device = VALUES(device), os = VALUES(os), browser = VALUES(browser), installed = GREATEST(installed, VALUES(installed))'
+        : 'ON CONFLICT(vid) DO UPDATE SET last_seen = MAX(last_seen, excluded.last_seen), device = excluded.device, os = excluded.os, browser = excluded.browser, installed = MAX(installed, excluded.installed)'))
         ->execute([$vid, $now, $now, $device, $os, $browser, $installed]);
     $db->commit();
 
     // Occasional housekeeping: drop events past the retention period and expired limits.
     if (random_int(1, 200) === 1) {
         $db->prepare('DELETE FROM ns_ayar_events WHERE ts < ?')->execute([$now - NS_AYAR_RETENTION_DAYS * 86400]);
-        $db->prepare('DELETE FROM ns_ayar_limits WHERE until < ?')->execute([$now]);
+        $db->prepare('DELETE FROM ns_ayar_limits WHERE `until` < ?')->execute([$now]);
     }
 } catch (Throwable $err) {
     if (isset($db) && $db->inTransaction()) {
