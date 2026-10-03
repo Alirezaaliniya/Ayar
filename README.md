@@ -28,8 +28,9 @@ All CSS classes, ids, data attributes, storage keys, cache names and files use t
    (only what the live site needs: no tests, dev tools, docs or local data).
 2. Upload and extract it on the server (it contains an `ayar/` folder).
 3. Make `ayar/server/data/` writable by PHP (the database and secret key are created there on first use).
-4. Open the admin panel's private address and set the password (from the server itself, or with
-   `php tools/ns-ayar-admin-password.php`).
+4. Open the admin panel's private address and set the password. On shared hosting (no command
+   line) the panel asks for the one-time setup code from `dist/ns-ayar-setup-code.txt`; the code
+   is deleted from the host once used. (With shell access, `php tools/ns-ayar-admin-password.php` also works.)
 5. Serve the site over HTTPS (needed for offline use and installing).
 
 ## Publishing an update
@@ -37,7 +38,9 @@ All CSS classes, ids, data attributes, storage keys, cache names and files use t
 1. Change the files.
 2. Run `node tools/ns-ayar-build.js` (it also runs `tools/ns-ayar-release.js`, which hashes every
    cached file into `NS_AYAR_VERSION`).
-3. Upload the new package, keeping the server's `server/data/` folder (it holds the usage data).
+3. Upload and extract the new package over the old one. It never contains `server/data/` contents
+   other than a fresh setup code, so the usage data and the admin password on the host are kept
+   (the unused code is deleted automatically, since a password already exists).
 
 Users who already have the app get the new version in the background the next time they are
 online, then see a "new version is ready" banner. It only switches when they tap update, so no
@@ -53,8 +56,8 @@ expected result, then open `tests/` in the browser.
 
 ## Admin panel
 
-Open the panel's private address (kept outside this repository). On the first visit from the server itself (localhost) it asks you
-to choose a password; on a remote server set it with `php tools/ns-ayar-admin-password.php`.
+Open the panel's private address (kept outside this repository). The first visit asks for a
+password; on a remote host it also asks for the one-time setup code created by the build script.
 
 What is recorded: app opens, images processed (detection result, message count, time), exports
 (download / copy / share, count, settings used), upload errors, installs and updates. No images,

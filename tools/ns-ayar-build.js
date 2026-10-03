@@ -2,9 +2,10 @@
 /* Ayar (ns-ayar) — builds the upload package.
  * Usage (from the project root):  node tools/ns-ayar-build.js
  * Stamps a new version (tools/ns-ayar-release.js), then writes dist/ns-ayar-upload.zip containing
- * only the files the live site needs: no tests, dev tools, docs, logo source or local data. */
+ * only the files the live site needs: no tests, dev tools, docs, logo source or local data.
+ * It also generates a one-time admin setup code (see dist/ns-ayar-setup-code.txt). */
 'use strict';
-const fs = require('fs'), path = require('path'), zlib = require('zlib');
+const fs = require('fs'), path = require('path'), zlib = require('zlib'), crypto = require('crypto');
 
 const root = path.resolve(__dirname, '..');
 require('./ns-ayar-release.js');
@@ -21,6 +22,8 @@ const INCLUDE = [
 ];
 
 const files = [];
+// Files that exist only inside the package (generated here, never stored in the project).
+const generated = {};
 const walk = rel => {
   const abs = path.join(root, rel);
   if (!fs.existsSync(abs)) throw new Error('Missing: ' + rel);
@@ -28,6 +31,14 @@ const walk = rel => {
   else files.push(rel);
 };
 INCLUDE.forEach(walk);
+
+// One-time admin setup code for hosts without a command line. It goes to server/data/ (not
+// web-accessible); the panel asks for it before the first password can be set, then deletes it.
+const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I to avoid misreading
+const raw = crypto.randomBytes(25), setupCode = [...raw].map(b => ALPHABET[b % 32]).join('').match(/.{5}/g).join('-');
+generated['server/data/ns-ayar-setup-code.txt'] = Buffer.from(setupCode + '\n');
+files.push('server/data/ns-ayar-setup-code.txt');
+const panel = INCLUDE.find(n => n.startsWith('ns-ayar-panel-'));
 
 // Minimal ZIP writer (deflate), so no extra tools are needed.
 let CRC;
@@ -38,7 +49,7 @@ function crc32(d) {
 const parts = [], central = [];
 let offset = 0;
 for (const rel of files) {
-  const data = fs.readFileSync(path.join(root, rel)), packed = zlib.deflateRawSync(data, { level: 9 });
+  const data = generated[rel] || fs.readFileSync(path.join(root, rel)), packed = zlib.deflateRawSync(data, { level: 9 });
   const name = Buffer.from('ayar/' + rel, 'utf8'), crc = crc32(data);
   const local = Buffer.alloc(30);
   local.writeUInt32LE(0x04034b50, 0); local.writeUInt16LE(20, 4); local.writeUInt16LE(0x0800, 6); local.writeUInt16LE(8, 8);
@@ -55,4 +66,16 @@ end.writeUInt32LE(0x06054b50, 0); end.writeUInt16LE(files.length, 8); end.writeU
 const out = path.join(root, 'dist', 'ns-ayar-upload.zip');
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, Buffer.concat([...parts, ...central, end]));
+// Private notes for the owner, next to the package (dist/ is git-ignored).
+fs.writeFileSync(path.join(root, 'dist', 'ns-ayar-setup-code.txt'), [
+  'Ayar — first-time admin setup (private, do not share)',
+  '',
+  'Admin panel:  https://<your-domain>/ayar/' + (panel ? panel + '/' : '<panel folder>/'),
+  'Setup code:   ' + setupCode,
+  '',
+  'The code only works in the package built together with it, only until a password is set,',
+  'and is deleted from the host once used. Every build creates a new code.',
+  ''
+].join('\n'));
 console.log(`${files.length} files -> ${path.relative(root, out)} (${(fs.statSync(out).size / 1024).toFixed(0)} KB)`);
+console.log(`Admin setup code: ${setupCode}  (also saved in dist/ns-ayar-setup-code.txt)`);
