@@ -3,3 +3,9 @@ server/data/
 
 # Built upload package (node tools/ns-ayar-build.js)
 dist/
+
+# Admin panel: kept out of the (public) repository; it is still included in the upload package.
+# Its folder has a private, unguessable name; only the prefix is listed here.
+ns-ayar-panel-*/
+server/ns-ayar-admin-lib.php
+tools/ns-ayar-admin-password.php

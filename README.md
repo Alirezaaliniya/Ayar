@@ -19,7 +19,7 @@ All CSS classes, ids, data attributes, storage keys, cache names and files use t
 | `tests/` | Detection tests: open `tests/` in the browser |
 | `tools/ns-ayar-release.js` | Stamps a new version before publishing |
 | `api/ns-ayar-collect.php` | Receives anonymous usage events |
-| `admin/` | Admin panel (usage report, CSV export) |
+| `ns-ayar-panel-…/` | Admin panel. Private: its folder name is secret and it is not in this repository |
 | `server/` | Shared PHP code + `data/` (SQLite database, secret). Not web-accessible |
 
 ## Deploying
@@ -28,7 +28,7 @@ All CSS classes, ids, data attributes, storage keys, cache names and files use t
    (only what the live site needs: no tests, dev tools, docs or local data).
 2. Upload and extract it on the server (it contains an `ayar/` folder).
 3. Make `ayar/server/data/` writable by PHP (the database and secret key are created there on first use).
-4. Open `ayar/admin/` and set the admin password (from the server itself, or with
+4. Open the admin panel's private address and set the password (from the server itself, or with
    `php tools/ns-ayar-admin-password.php`).
 5. Serve the site over HTTPS (needed for offline use and installing).
 
@@ -53,7 +53,7 @@ expected result, then open `tests/` in the browser.
 
 ## Admin panel
 
-Open `admin/` in the browser. On the first visit from the server itself (localhost) it asks you
+Open the panel's private address (kept outside this repository). On the first visit from the server itself (localhost) it asks you
 to choose a password; on a remote server set it with `php tools/ns-ayar-admin-password.php`.
 
 What is recorded: app opens, images processed (detection result, message count, time), exports

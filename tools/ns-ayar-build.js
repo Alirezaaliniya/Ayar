@@ -12,7 +12,9 @@ require('./ns-ayar-release.js');
 // Everything that goes to the server. Folders are included recursively.
 const INCLUDE = [
   '.htaccess', 'index.html', 'ns-ayar-sw.js', 'ns-ayar.webmanifest', 'LICENSE',
-  'css', 'js', 'fonts', 'icons', 'api', 'admin',
+  'css', 'js', 'fonts', 'icons', 'api',
+  // The admin panel lives in a privately named folder (ns-ayar-panel-<random>), not in the repo.
+  ...fs.readdirSync(root).filter(n => /^ns-ayar-panel-[a-z0-9]{12,}$/.test(n) && fs.statSync(path.join(root, n)).isDirectory()),
   'brand/ns-ayar-logo.png', 'brand/ns-ayar-logo-dark.png',
   'server/.htaccess', 'server/ns-ayar-bootstrap.php', 'server/ns-ayar-admin-lib.php', 'server/data/.htaccess',
   'tools/.htaccess', 'tools/ns-ayar-admin-password.php'

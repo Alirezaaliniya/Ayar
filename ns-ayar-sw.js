@@ -3,7 +3,7 @@
  * Releasing an update: change any app file, then run `node tools/ns-ayar-release.js`.
  * It rewrites NS_AYAR_VERSION below from a hash of NS_AYAR_ASSETS, so browsers see a new
  * service worker, download the new files in the background and show the "update" banner. */
-const NS_AYAR_VERSION = '2026.10.03-73b30308';
+const NS_AYAR_VERSION = '2026.10.03-b6aa6a8e';
 const NS_AYAR_CACHE = 'ns-ayar-app-' + NS_AYAR_VERSION;
 const NS_AYAR_SHARE_CACHE = 'ns-ayar-share';
 const NS_AYAR_ASSETS = [
@@ -62,7 +62,7 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
 
   // Only the app's own files are served from the cache. Everything else in this folder
-  // (admin/, api/, tests/, design files) always goes straight to the network, untouched.
+  // (the admin panel, api/, tests/) always goes straight to the network, untouched.
   const scope = new URL(self.registration.scope).pathname;
   if (!url.pathname.startsWith(scope)) return;
   const rel = url.pathname.slice(scope.length);
